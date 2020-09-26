@@ -39,11 +39,9 @@ def crawl_login_attempts():
         log = log.replace("Audit:", "").replace("[","").replace("]","").split(",")
         action = log[2].replace(" ", "")
         if action == "action=loginattempt":
+            print log
             timestamp, user = log[0], log[1].replace(" ", "")
             # logs are in a weird format, so need to do some cleaning to get the status of login
-            status_idx = log[3].find("status=")
-            
-         
             status_idx = log[3].find("info=")
             ip_idx = log[3].find("clientip=")
             status, client_ip = "", ""
