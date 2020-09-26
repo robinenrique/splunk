@@ -11,7 +11,7 @@ passw = conf['password']
 port = conf['port']
 host = conf['host']
 
-service = client.connect(host=host, username=user, password=passw)
+service = client.connect(host=host, port=port, username=user, password=passw)
 
 # obtained this template from Splunk's dev documentation
 # <source>: https://dev.splunk.com/enterprise/docs/devtools/python/sdk-python/howtousesplunkpython/howtorunsearchespython
@@ -33,7 +33,7 @@ def get_audit_logs():
             # Not sure what to do with these messages... look like error messages
             continue
 
-def main():
+def crawl_login_attempts():
     for log in get_audit_logs():
         # I am sorry for the weird parsing... this could definitely be improved with find() calls
         log = log.replace("Audit:", "").replace("[","").replace("]","").split(",")
@@ -57,7 +57,11 @@ def main():
 	            ip_idx = log[4].find("src=")
         	    if ip_idx != -1:
                	        client_ip = log[4][ip_idx:].split(" ")[0]
-            print timestamp, user, status.replace("info=", "status="), client_ip.replace("clientip=", "src=")
+            yield timestamp + " " + user + " " + status.replace("info=", "status=") + " " + client_ip.replace("clientip=", "src=")
+
+def main():
+    for login_attempt in crawl_login_attempts():
+        print login_attempt
 
 main()
 
